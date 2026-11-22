@@ -1,0 +1,230 @@
+{
+  "_version": 1795274615216,
+  "adminPassword": "admin123",
+  "tournament": {
+    "orgName": "WARZONE",
+    "tournTitle": "DAILY PAID SCRIM",
+    "tournSubtitle": "OVERALL STANDINGS",
+    "matchInfo": "WEEK 01 DAY 01",
+    "footerText": "Powered by WARZONE",
+    "logoVal": "WZ"
+  },
+  "scoring": {
+    "1": 12,
+    "2": 9,
+    "3": 8,
+    "4": 7,
+    "5": 6,
+    "6": 5,
+    "7": 4,
+    "8": 3,
+    "9": 2,
+    "10": 1,
+    "11": 0,
+    "12": 0,
+    "13": 0,
+    "14": 0,
+    "15": 0,
+    "16": 0
+  },
+  "squads": [
+    {
+      "id": "sq_1",
+      "name": "OutLaw",
+      "logo": "OL",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "OutLaw_King",
+        "OutLaw_Viper",
+        "OutLaw_Zeus",
+        "OutLaw_Ghost"
+      ]
+    },
+    {
+      "id": "sq_2",
+      "name": "ZERO GRAVITY xNS",
+      "logo": "ZG",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "ZG_Ragnar",
+        "ZG_Kage",
+        "ZG_Nova",
+        "ZG_Venom"
+      ]
+    },
+    {
+      "id": "sq_3",
+      "name": "FLAWLESS",
+      "logo": "FLW",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "FLW_Ace",
+        "FLW_Demon",
+        "FLW_Sniper",
+        "FLW_Reaper"
+      ]
+    },
+    {
+      "id": "sq_4",
+      "name": "VEXARCH",
+      "logo": "VEX",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "VEX_Alpha",
+        "VEX_Ronin",
+        "VEX_Blaze",
+        "VEX_Storm"
+      ]
+    },
+    {
+      "id": "sq_5",
+      "name": "WARBORN OFFICIAL",
+      "logo": "WB",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "WB_Warlord",
+        "WB_Striker",
+        "WB_Titan",
+        "WB_Echo"
+      ]
+    },
+    {
+      "id": "sq_6",
+      "name": "MYSTIC WOLVES",
+      "logo": "MW",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "MW_Wolfy",
+        "MW_Claw",
+        "MW_Fang",
+        "MW_Howler"
+      ]
+    },
+    {
+      "id": "sq_7",
+      "name": "ESS 11",
+      "logo": "ESS",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "ESS_Eleven",
+        "ESS_Matrix",
+        "ESS_Chaos",
+        "ESS_Frost"
+      ]
+    },
+    {
+      "id": "sq_8",
+      "name": "DIVINE CORPSE",
+      "logo": "DC",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "DC_Immortal",
+        "DC_Revenant",
+        "DC_Phantom",
+        "DC_Specter"
+      ]
+    },
+    {
+      "id": "sq_9",
+      "name": "UNO REVERSE",
+      "logo": "UNO",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "UNO_Card",
+        "UNO_Wild",
+        "UNO_Skip",
+        "UNO_Draw4"
+      ]
+    },
+    {
+      "id": "sq_10",
+      "name": "CHOSEN ONES",
+      "logo": "CO",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "CO_Neo",
+        "CO_Morpheus",
+        "CO_Trinity",
+        "CO_Oracle"
+      ]
+    },
+    {
+      "id": "sq_11",
+      "name": "NO SKILL",
+      "logo": "NS",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "NS_Lucky",
+        "NS_NoobMaster",
+        "NS_Clutch",
+        "NS_RNG"
+      ]
+    },
+    {
+      "id": "sq_12",
+      "name": "ZERO LIMIT",
+      "logo": "ZL",
+      "matches": 0,
+      "wins": 0,
+      "posPts": 0,
+      "killPts": 0,
+      "total": 0,
+      "roster": [
+        "ZL_Infinity",
+        "ZL_Apex",
+        "ZL_Surge",
+        "ZL_Pulse"
+      ]
+    }
+  ],
+  "matchHistory": [],
+  "ui": {
+    "editMode": false,
+    "showRosters": false,
+    "searchQuery": ""
+  }
+}

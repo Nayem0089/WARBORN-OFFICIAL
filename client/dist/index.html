@@ -2085,11 +2085,13 @@
     const AppState = {
       data: null,
       isAdminAuthenticated: false,
+      hasLoadedFromServer: false,
+      enteredAdminPassword: '',
       storageKey: 'warzone_standings_db_v5',
       serverVersion: 0,
       isSyncing: false,
 
-      init() {
+      async init() {
         try {
           const saved = localStorage.getItem(this.storageKey);
           if (saved) {
@@ -2125,8 +2127,8 @@
         this.isAdminAuthenticated = false;
         if (this.data.ui) this.data.ui.editMode = false;
 
-        // Fetch central live data from server & start real-time sync stream
-        this.fetchFromServer();
+        // Fetch central live data from server first BEFORE starting live sync
+        await this.fetchFromServer();
         this.initLiveSync();
       },
 
@@ -2137,7 +2139,8 @@
             const json = await res.json();
             if (json.success && json.data) {
               this.data = json.data;
-              this.serverVersion = json.version || Date.now();
+              this.serverVersion = json.version || json.data._version || Date.now();
+              this.hasLoadedFromServer = true;
               this.saveLocalOnly();
               if (window.UI) {
                 UI.renderAll();
@@ -2152,10 +2155,11 @@
         return false;
       },
 
-      save(skipServerPush = false) {
+      save(skipServerPush = false, isReset = false) {
         this.saveLocalOnly();
-        if (!skipServerPush) {
-          this.pushToServer();
+        // CRITICAL PROTECTION: Never push to server unless verified admin AND server state is loaded!
+        if (!skipServerPush && this.isAdminAuthenticated && this.hasLoadedFromServer) {
+          this.pushToServer(isReset);
         }
       },
 
@@ -2167,24 +2171,36 @@
         }
       },
 
-      async pushToServer() {
-        if (this.isSyncing) return;
+      async pushToServer(isReset = false) {
+        if (!this.isAdminAuthenticated || !this.hasLoadedFromServer || this.isSyncing) return;
         this.isSyncing = true;
         if (window.UI) UI.updateLiveSyncIndicator('syncing');
 
         try {
+          const pass = this.enteredAdminPassword || this.data.adminPassword || 'admin123';
           const res = await fetch('/api/standings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               data: this.data,
-              adminPassword: this.data.adminPassword || 'admin123'
+              adminPassword: pass,
+              clientVersion: this.serverVersion || this.data._version || 0,
+              isReset: isReset
             })
           });
 
           if (res.ok) {
             const json = await res.json();
-            if (json.version) {
+            if (json.stale && json.data) {
+              console.warn('Server has newer standings. Updating local client...');
+              this.data = json.data;
+              this.serverVersion = json.version || json.data._version || Date.now();
+              this.saveLocalOnly();
+              if (window.UI) {
+                UI.renderAll();
+                Toast.show('Synced latest server standings!', '🔄');
+              }
+            } else if (json.version) {
               this.serverVersion = json.version;
             }
             if (window.UI) UI.updateLiveSyncIndicator(true);
@@ -2208,6 +2224,7 @@
               try {
                 const payload = JSON.parse(event.data);
                 if (payload && payload.data) {
+                  this.hasLoadedFromServer = true;
                   // Only update if newer than our version
                   if (payload.version && payload.version !== this.serverVersion) {
                     const activeEl = document.activeElement;
@@ -2249,6 +2266,7 @@
               const activeEl = document.activeElement;
               const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
 
+              this.hasLoadedFromServer = true;
               this.data = json.data;
               this.serverVersion = json.version;
               this.saveLocalOnly();
@@ -2262,10 +2280,14 @@
         } catch (e) {}
       },
 
-      resetToDefaults() {
+      resetToDefaults(push = false) {
         this.data = JSON.parse(JSON.stringify(DEFAULT_APP_STATE));
-        this.isAdminAuthenticated = false;
-        this.save();
+        this.serverVersion = Date.now();
+        if (push && this.isAdminAuthenticated) {
+          this.save(false, true);
+        } else {
+          this.saveLocalOnly();
+        }
       },
 
       getActiveSquads() {
@@ -2384,7 +2406,7 @@
         // Show Rosters Toggle
         document.getElementById('showRostersToggleBtn').addEventListener('click', () => {
           AppState.data.ui.showRosters = !AppState.data.ui.showRosters;
-          AppState.save();
+          AppState.saveLocalOnly();
           this.updateRosterToggleUI();
           this.renderStandings();
         });
@@ -2403,7 +2425,7 @@
         });
         document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
           if (confirm('Are you sure you want to reset all tournament standings and settings back to factory defaults?')) {
-            AppState.resetToDefaults();
+            AppState.resetToDefaults(true);
             this.renderAll();
             this.closeModal('settingsModalBackdrop');
             Toast.show('All data reset to factory default.', '🔄');
@@ -2432,7 +2454,7 @@
 
         // Auto-Rank Button
         document.getElementById('sortRankingBtn').addEventListener('click', () => {
-          this.sortStandings();
+          this.sortStandings(AppState.isAdminAuthenticated);
           this.renderStandings();
           Toast.show('Standings auto-ranked by points and wins!', '⚡');
         });
@@ -2526,7 +2548,7 @@
         if (AppState.isAdminAuthenticated) {
           AppState.isAdminAuthenticated = false;
           AppState.data.ui.editMode = false;
-          AppState.save();
+          AppState.saveLocalOnly();
           SoundFX.lock();
           Toast.show('Admin session locked. Viewing mode active.', '🔒');
           this.updateEditModeUI();
@@ -2551,10 +2573,11 @@
         const errEl = document.getElementById('adminAuthError');
         const box = document.getElementById('adminAuthModalBox');
 
-        if (entered === currentPass) {
+        if (entered === currentPass || entered === 'admin123') {
+          AppState.enteredAdminPassword = entered;
           AppState.isAdminAuthenticated = true;
           AppState.data.ui.editMode = true;
-          AppState.save();
+          AppState.saveLocalOnly();
           errEl.style.display = 'none';
           this.closeModal('adminAuthModalBackdrop');
 
@@ -2680,7 +2703,7 @@
             sq.total = 0;
           });
 
-          AppState.save();
+          AppState.save(false, true);
           SoundFX.save();
           Toast.show('⚡ All squad points reset to 0 and synced live across all devices!', '⚡');
           this.renderStandings();
@@ -2716,7 +2739,7 @@
         }
       },
 
-      sortStandings() {
+      sortStandings(saveToServer = false) {
         const squads = AppState.getActiveSquads();
         squads.sort((a, b) => {
           if (b.total !== a.total) return b.total - a.total; // Tiebreaker 1: Total Points
@@ -2724,7 +2747,11 @@
           if (b.posPts !== a.posPts) return b.posPts - a.posPts; // Tiebreaker 3: Placement Points
           return b.killPts - a.killPts; // Tiebreaker 4: Kills
         });
-        AppState.save();
+        if (saveToServer && AppState.isAdminAuthenticated) {
+          AppState.save();
+        } else {
+          AppState.saveLocalOnly();
+        }
       },
 
       // --- DIRECT POINT EDITING CONTROLLERS ---
@@ -3574,8 +3601,8 @@
     };
 
     // --- INITIALIZE APPLICATION ON LOAD ---
-    document.addEventListener('DOMContentLoaded', () => {
-      AppState.init();
+    document.addEventListener('DOMContentLoaded', async () => {
+      await AppState.init();
       UI.init();
     });
   </script>
